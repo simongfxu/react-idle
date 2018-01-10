@@ -42,7 +42,7 @@ export default class Idle extends Component {
 
   removeEvents() {
     this.props.events.forEach(event => {
-      window.removeEventListener(event, this.handleEvent)
+      window.removeEventListener(event, this.handleEvent, true)
     })
   }
 
