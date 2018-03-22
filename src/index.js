@@ -1,71 +1,98 @@
-import { Component } from "react"
+import {Component} from 'react'
+import PropTypes from 'prop-types'
+import throttle from 'lodash/throttle'
 
-const eventsChanged = (yeoldevents, yonnewevents) =>
-  yeoldevents.sort().toString() !== yonnewevents.sort().toString()
+const watchEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll']
 
 export default class Idle extends Component {
+  static propTypes = {
+    timeout: PropTypes.number,
+    throttle: PropTypes.number,
+    breakOnIdle: PropTypes.bool,
+    onChange: PropTypes.func,
+    // render according to idle state
+    render: PropTypes.func,
+    children: PropTypes.any
+  }
+
   static defaultProps = {
-    defaultIdle: false,
-    render: () => null,
-    onChange: () => {},
-    timeout: 1000,
-    events: ["mousemove", "mousedown", "keydown", "touchstart", "scroll"]
+    // seconds
+    timeout: 60 * 15,
+    // seconds, must less than timeout
+    throttle: 5,
+    /**
+     * stop the detect action when no user action
+     * lead user to refresh page or do other things
+     * usually to reduce server burder
+     */
+    breakOnIdle: true,
+    // to do some stuff on idle, preload images / close websocket or polling
+    onChange: idle => console.log(`Idle: ${idle}`)
   }
 
   state = {
-    idle: this.props.defaultIdle
+    idle: false
   }
 
-  timeout = null
+  // a tiemout timer to set idle state
+  timer = null
 
-  componentDidMount() {
+  // a handler to reset the timer according to user action
+  handler = null
+
+  startTimer = () => {
+    this.timer = setTimeout(() => {
+      if (this.props.breakOnIdle) {
+        this.removeEvents()
+      }
+
+      this.setState({idle: true})
+    }, this.props.timeout * 1000)
+  }
+
+  resetTimer = () => {
+    if (this.state.idle) {
+      this.setState({idle: false})
+    }
+
+    clearTimeout(this.timer)
+    this.startTimer()
+  }
+
+  attachEvents = () => {
+    watchEvents.forEach(event => {
+      window.addEventListener(event, this.handler, true)
+    })
+  }
+
+  removeEvents = () => {
+    clearTimeout(this.timer)
+    watchEvents.forEach(event => {
+      window.removeEventListener(event, this.handler, true)
+    })
+  }
+
+  componentDidMount () {
+    this.handler = this.props.throttle ? throttle(this.resetTimer, this.props.throttle * 1000) : this.resetTimer
     this.attachEvents()
-    this.setTimeout()
+    this.startTimer()
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.removeEvents()
   }
 
-  componentDidUpdate(prevProps) {
-    if (eventsChanged(prevProps.events, this.props.events)) {
-      this.removeEvents()
-      this.attachEvents()
+  componentDidUpdate (prevProps, prevState) {
+    if (this.state.idle !== prevState.idle) {
+      this.props.onChange(this.state.idle)
     }
   }
 
-  attachEvents() {
-    this.props.events.forEach(event => {
-      window.addEventListener(event, this.handleEvent, true)
-    })
-  }
-
-  removeEvents() {
-    this.props.events.forEach(event => {
-      window.removeEventListener(event, this.handleEvent, true)
-    })
-  }
-
-  handleChange(idle) {
-    this.props.onChange({ idle })
-    this.setState({ idle })
-  }
-
-  handleEvent = () => {
-    if (this.state.idle) {
-      this.handleChange(false)
+  render () {
+    if (this.props.render) {
+      return this.props.render(this.state.idle)
     }
-    clearTimeout(this.timeout)
-    this.setTimeout()
-  }
 
-  setTimeout() {
-    this.timeout = setTimeout(() => {
-      this.handleChange(true)
-    }, this.props.timeout)
-  }
-
-  render() {
-    return this.props.render(this.state)
+    return this.state.idle ? this.props.children : null
   }
 }
