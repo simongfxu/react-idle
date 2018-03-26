@@ -4,13 +4,19 @@ import throttle from 'lodash/throttle'
 
 const watchEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll']
 
+/**
+ * two common situation for usage
+ * 1) preload resources when user idle
+ * 2) break the entire page when user has no action anymore
+ *
+ * in case 1, custom render is the preferred.
+ * in case 2, usually modal children is preferred
+ */
 export default class Idle extends Component {
   static propTypes = {
     timeout: PropTypes.number,
     throttle: PropTypes.number,
-    breakOnIdle: PropTypes.bool,
     onChange: PropTypes.func,
-    // render according to idle state
     render: PropTypes.func,
     children: PropTypes.any
   }
@@ -20,13 +26,6 @@ export default class Idle extends Component {
     timeout: 60 * 15,
     // seconds, must less than timeout
     throttle: 5,
-    /**
-     * stop the detect action when no user action
-     * lead user to refresh page or do other things
-     * usually to reduce server burder
-     */
-    breakOnIdle: true,
-    // to do some stuff on idle, preload images / close websocket or polling
     onChange: idle => console.log(`Idle: ${idle}`)
   }
 
@@ -42,7 +41,8 @@ export default class Idle extends Component {
 
   startTimer = () => {
     this.timer = setTimeout(() => {
-      if (this.props.breakOnIdle) {
+      let breakOnIdle = this.props.children
+      if (breakOnIdle) {
         this.removeEvents()
       }
 
@@ -73,7 +73,8 @@ export default class Idle extends Component {
   }
 
   componentDidMount () {
-    this.handler = this.props.throttle ? throttle(this.resetTimer, this.props.throttle * 1000) : this.resetTimer
+    let throttleTime = this.props.throttle * 1000
+    this.handler = throttleTime ? throttle(this.resetTimer, throttleTime) : this.resetTimer
     this.attachEvents()
     this.startTimer()
   }
@@ -89,10 +90,10 @@ export default class Idle extends Component {
   }
 
   render () {
-    if (this.props.render) {
-      return this.props.render(this.state.idle)
+    if (this.props.children) {
+      return this.state.idle ? this.props.children : null
+    } else {
+      return this.props.render ? this.props.render(this.state.idle) : null
     }
-
-    return this.state.idle ? this.props.children : null
   }
 }

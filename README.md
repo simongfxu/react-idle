@@ -1,72 +1,36 @@
-# React Idle
+# React User Idle
+
+This project is inspired and forked from https://github.com/ReactTraining/react-idle .
 
 ![logo](./logo.png)
 
 What?
 -----
 
-Notifies your app when the user is idle.
+Notifies or break your app when the user is idle.
 
 Why?
 ----
 
-When the user is idle you can do things like preload some code-split bundles, download images that haven't been scrolled to, etc. Also useful to automatically log them out of a sensitive website.
+When the user is idle you can do things like preload some code-split bundles, download images that haven't been scrolled to, etc. Also useful to break the entire app to reduce serve burden.
 
 Installation
 ------------
 
 ```bash
-npm install react-idle
+npm install react-user-idle
 # or
-yarn add react-idle
+yarn add react-user-idle
 ```
 
 And then import it:
 
 ```js
 // using es modules
-import Idle from 'react-idle'
+import Idle from 'react-user-idle'
 
 // common.js
-const Idle = require('react-idle').default
-
-// AMD
-// I've forgotten but it should work.
-```
-
-Or use script tags and globals.
-
-```html
-<script src="https://unpkg.com/react-idle"></script>
-```
-
-And then grab it off the global like so:
-
-```js
-const Idle = ReactIdle.default
-```
-
-
-How?
-----
-
-```render-babel
-// import { Idle } from 'react-idle'
-const { default: Idle } = ReactIdle
-
-ReactDOM.render((
-  <Idle
-    onChange={({ idle }) => console.log({ idle })}
-    render={({ idle }) =>
-      <h1>
-        {idle
-          ? "You are idle."
-          : "Stop doing stuff for 1 second."
-        }
-      </h1>
-    }
-  />
-), DOM_NODE)
+const Idle = require('react-user-idle').default
 ```
 
 Props
@@ -76,105 +40,66 @@ Props
 
 Whatever you'd like to render in response to changes in user activity.
 
-```render-babel
-// import { Idle } from 'react-idle'
-const { default: Idle } = ReactIdle
+### `children`
 
-ReactDOM.render((
-  <Idle render={({ idle }) =>
-    <h1>
-      {idle
-        ? "*whistles*"
-        : "Woah what now?"
-      }
-    </h1>
-  }/>
-), DOM_NODE)
-```
+You should pick `render` or `children`, not both at the same time.
+Once the component state idle comes to true, children will be rendered and will never gone.
+This is useful when you wanna user to reload the page or to do some important things.
 
 ### `timeout`
 
-How long before notifying that the user is idle in milliseconds.
+How long before notifying that the user is idle in seconds.
 
-```render-babel
-// import { Idle } from 'react-idle'
-const { default: Idle } = ReactIdle
 
-ReactDOM.render((
-  <Idle
-    timeout={2000}
-    render={({ idle }) =>
-      <h1>
-        {idle
-          ? "You are idle."
-          : "Stop doing stuff for 2 seconds."
-        }
-      </h1>
-    }
-  />
-), DOM_NODE)
-```
+### `throttle`
+
+Seconds, using `lodash/throttle` to improve the preformance when user actions go fast
 
 ### `onChange`
 
 Called whenever the user's activity state changes, a great time to change the owner component's state, or to kick off some imperative work like pre-fetching code-split bundles or images.
 
-```render-babel
-// import { Idle } from 'react-idle'
-const { default: Idle } = ReactIdle
+Demo Case 1: Break on idle
+-----
 
-class App extends React.Component {
-  state = {
-    cornifyLoaded: false
-  }
+```javascript
+import Idle from 'react-user-idle'
 
-  preloadCornify = () => {
-    const script = document.createElement('script')
-    script.onload = () => this.setState({ cornifyLoaded: true })
-    script.src = '//www.cornify.com/js/cornify.js'
-    document.body.appendChild(script)
-  }
+render () {
+  return (
+    <Idle
+      timeout={3600}
+      throttle={5}
+      onChange={() => console.log('report to server to record and do stat things')}
+    >
+      <Modal title="Connection Lost">
+        Long time no action, you should refresh this page to reconnect.
+      </Modal>
+    </Idle>
+  )
+}
+```
 
-  cornify = () => {
-    window.cornify_add()
-  }
+Demo Case 2: Preload resources
+----
 
-  render() {
-    return (
-      <div>
-        {this.state.cornifyLoaded === false && (
-          <Idle onChange={({ idle}) => {
-            if (idle) {
-              this.preloadCornify()
-            }
-          }}/>
-        )}
+```javascript
+import Idle from 'react-user-idle'
 
-        <button
-          disabled={!this.state.cornifyLoaded}
-          onClick={this.cornify}
-        >Make Some Happiness</button>
-      </div>
-    )
+preload = (idle) => {
+  if (idle) {
+    console.log('preload images or other resoures')
   }
 }
 
-ReactDOM.render(<App/>, DOM_NODE)
+render () {
+  return (
+    <Idle
+      timeout={3600}
+      throttle={5}
+      onChange={this.preload}
+      render={idle => idle && <Indicator>Preloading some resources</Indicator>}
+    />
+  )
+}
 ```
-
-### `events`
-
-The window events to listen for activity, defaults to `[ "mousemove", "mousedown", "keydown", "touchstart", "scroll" ]`.
-
-
-### `defaultIdle`
-
-You can start out as idle by passing `<Idle defaultIdle={true}/>`, by default it is false--assumes that loading the page initially is a user interation.
-
-
-Legal
------
-
-Released under MIT license.
-
-Copyright &copy; 2017-present React Training LLC

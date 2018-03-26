@@ -1,38 +1,62 @@
 {
-  "name": "react-idle",
-  "version": "2.0.0",
-  "description": "Notifies your app when the user is idle.",
+  "name": "react-user-idle",
+  "version": "1.0.0",
   "main": "lib/index.js",
-  "module": "es/index.js",
+  "module": "src/index.js",
   "files": [
-    "css",
-    "es",
     "lib",
-    "umd"
+    "src"
   ],
-  "scripts": {
-    "build": "nwb build-react-component",
-    "clean": "nwb clean-module && nwb clean-demo",
-    "start": "watch -p '{src/**/*.js,README.md,templates/*.html}' -c 'echo \"$(cat templates/header.html) $(render-markdown-js README.md) $(cat templates/footer.html)\" > index.html'",
-    "test": "nwb test-react",
-    "test:coverage": "nwb test-react --coverage",
-    "test:watch": "nwb test-react --server"
-  },
-  "dependencies": {},
-  "peerDependencies": {
-    "react": "15.x"
-  },
   "devDependencies": {
-    "nwb": "0.17.x",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "render-markdown-js": "^1.3.0",
-    "watch-cli": "^0.2.2"
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.9.1",
+    "babel-eslint": "^8.2.1",
+    "babel-jest": "^22.0.6",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "eslint": "^4.15.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-config-standard-react": "^4.3.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-react": "^7.5.1",
+    "eslint-plugin-standard": "^3.0.0",
+    "jest": "^22.0.6"
   },
-  "author": "Ryan Florence",
+  "dependencies": {
+    "lodash": "^4.7.14"
+  },
+  "peerdependencies": {
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  },
+  "scripts": {
+    "build": "babel src --out-dir lib --copy-files",
+    "test": "jest --coverage"
+  },
+  "jest": {
+    "setupTestFrameworkScriptFile": "./__tests__/setup.js",
+    "unmockedModulePathPatterns": [
+      "react"
+    ],
+    "testMatch": [
+      "**/src/index.test.js"
+    ],
+    "collectCoverageFrom": [
+      "**/src/index.js"
+    ]
+  },
+  "author": "Simon Xu",
   "license": "MIT",
-  "repository": "https://github.com/reacttraining/react-idle",
+  "repository": "https://github.com/simongfxu/react-idle",
   "keywords": [
-    "react-component"
+    "idle",
+    "user-idle",
+    "away",
+    "react"
   ]
 }
