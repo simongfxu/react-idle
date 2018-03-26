@@ -43,7 +43,6 @@ describe('Idle', function () {
 
     jest.advanceTimersByTime(timeout * 1000 * 0.5)
     let div = wrapper.find('div').at(0)
-    console.log(div.text())
     expect(div.text().indexOf('false') > -1).toBe(true)
     let event = new Event('mousedown')
     window.dispatchEvent(event)

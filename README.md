@@ -1,8 +1,12 @@
 # React User Idle
 
-This project is inspired and forked from https://github.com/ReactTraining/react-idle .
+This project is inspired by and forked from https://github.com/ReactTraining/react-idle .
 
 ![logo](./logo.png)
+
+[![Build Status](https://semaphoreci.com/api/v1/damngoto/react-idle/branches/master/badge.svg)](https://semaphoreci.com/damngoto/react-idle)
+[![codecov](https://codecov.io/gh/simongfxu/react-idle/branch/master/graph/badge.svg)](https://codecov.io/gh/simongfxu/react-idle)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 What?
 -----
