@@ -1,8 +1,7 @@
 {
   "name": "react-user-idle",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "lib/index.js",
-  "module": "src/index.js",
   "files": [
     "lib",
     "src"
