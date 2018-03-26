@@ -24,7 +24,7 @@ describe('Idle', function () {
 
   it('should render by custom function', () => {
     let timeout = 10
-    const wrapper = mount(<Idle timeout={timeout} throttle={1} render={idle => <div>Current idle status: {idle}</div>} />)
+    const wrapper = mount(<Idle timeout={timeout} throttle={1}>{idle => <div>Current idle status: {idle.toString()}</div>}</Idle>)
     expect(wrapper.children().length).toBe(1)
     let text = wrapper.find('div').at(0).text()
     expect(text.indexOf('false') > -1)
@@ -39,10 +39,11 @@ describe('Idle', function () {
 
   it('should delay the timeout when user does action', () => {
     let timeout = 10
-    const wrapper = mount(<Idle timeout={timeout} throttle={1} render={idle => <div>Current idle status: {idle.toString()}</div>} />)
+    const wrapper = mount(<Idle timeout={timeout} throttle={1}>{idle => <div>Current idle status: {idle.toString()}</div>}</Idle>)
 
     jest.advanceTimersByTime(timeout * 1000 * 0.5)
     let div = wrapper.find('div').at(0)
+    console.log(div.text())
     expect(div.text().indexOf('false') > -1).toBe(true)
     let event = new Event('mousedown')
     window.dispatchEvent(event)

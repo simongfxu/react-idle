@@ -17,7 +17,6 @@ export default class Idle extends Component {
     timeout: PropTypes.number,
     throttle: PropTypes.number,
     onChange: PropTypes.func,
-    render: PropTypes.func,
     children: PropTypes.any
   }
 
@@ -25,8 +24,7 @@ export default class Idle extends Component {
     // seconds
     timeout: 60 * 15,
     // seconds, must less than timeout
-    throttle: 5,
-    onChange: idle => console.log(`Idle: ${idle}`)
+    throttle: 5
   }
 
   state = {
@@ -85,15 +83,15 @@ export default class Idle extends Component {
 
   componentDidUpdate (prevProps, prevState) {
     if (this.state.idle !== prevState.idle) {
-      this.props.onChange(this.state.idle)
+      this.props.onChange && this.props.onChange(this.state.idle)
     }
   }
 
   render () {
-    if (this.props.children) {
-      return this.state.idle ? this.props.children : null
+    if (typeof this.props.children === 'function') {
+      return this.props.children(this.state.idle)
     } else {
-      return this.props.render ? this.props.render(this.state.idle) : null
+      return this.state.idle ? this.props.children : null
     }
   }
 }

@@ -36,15 +36,11 @@ const Idle = require('react-user-idle').default
 Props
 -----
 
-### `render`
-
-Whatever you'd like to render in response to changes in user activity.
-
 ### `children`
 
-You should pick `render` or `children`, not both at the same time.
 Once the component state idle comes to true, children will be rendered and will never gone.
 This is useful when you wanna user to reload the page or to do some important things.
+If you'd like to render in response to changes in user activity, `children` should be a function.
 
 ### `timeout`
 
@@ -98,8 +94,11 @@ render () {
       timeout={3600}
       throttle={5}
       onChange={this.preload}
-      render={idle => idle && <Indicator>Preloading some resources</Indicator>}
-    />
+    >
+      {
+        idle => idle && <Indicator>Preloading some resources</Indicator>
+      }
+    </Idle>
   )
 }
 ```
